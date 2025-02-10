@@ -33,8 +33,10 @@ def tokenize(df):
 # Apply tokenization (batched=true takes inputs as a batch, which is more efficient)
 tokenized_dataset = dataset.map(tokenize, batched=True)
 
-# Remove raw text column (only keep tokenized data)
+# Delete raw data
 tokenized_dataset = tokenized_dataset.remove_columns(["Message"])
+
+# Y value must be named "labels" for the model to understand 
 tokenized_dataset = tokenized_dataset.rename_column("Label", "labels")  
 
 split_data = tokenized_dataset.train_test_split(test_size=0.2)
@@ -43,7 +45,6 @@ eval_dataset = split_data["test"]
 
 
 # Load LLaMA 2 model
-
 model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
 
 # Training arguments
@@ -74,6 +75,6 @@ trainer.train()
 metrics = trainer.evaluate()
 print(metrics)
 
-# Save the fine-tuned model
+# Save model and tokenizer
 model.save_pretrained("./llama2_spam_model")
 tokenizer.save_pretrained("./llama2_spam_model")
